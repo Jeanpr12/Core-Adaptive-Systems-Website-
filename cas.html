@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CAS — Core Adaptive Systems</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;0,900;1,700;1,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+/* ── TOKENS ─────────────────────────────────────────────── */
+:root{
+  --bg:        #f4f2ef;
+  --bg1:       #eeece8;
+  --bg2:       #e8e5e0;
+  --surface:   #ffffff;
+  --ink:       #161a1f;
+  --ink2:      #2d3540;
+  --muted:     #7a8290;
+  --border:    #dcd9d3;
+  --border2:   rgba(47,92,95,.18);
+  --teal:      #2f5c5f;
+  --teal-mid:  #3d767a;
+  --teal-lt:   #529da1;
+  --teal-pale: #ebf2f2;
+  --teal-pale2:#d5e5e6;
+  --accent:    #2f5c5f;
+  --r:         10px;
+  --r2:        18px;
+  --font-head: 'Playfair Display', Georgia, serif;
+  --font-body: 'Instrument Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --ease:      cubic-bezier(.16,1,.3,1);
+  --shadow:    0 2px 16px rgba(22,26,31,.07);
+  --shadow2:   0 8px 40px rgba(22,26,31,.11);
+}
+
+/* ── RESET ──────────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.65;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+ul{list-style:none}
+button{cursor:pointer;border:none;background:none;font-family:inherit}
+input,textarea,select{font-family:inherit}
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--teal);border-radius:9px}
+
+/* ── TYPOGRAPHY ─────────────────────────────────────────── */
+.label{font-family:var(--font-mono);font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--teal-lt)}
+h1,h2,h3,h4{font-family:var(--font-head);line-height:1.1;color:var(--ink)}
+h1{font-size:clamp(2.8rem,6vw,5rem);letter-spacing:-.02em;font-weight:900}
+h2{font-size:clamp(2rem,3.8vw,3.2rem);letter-spacing:-.02em;font-weight:800}
+h3{font-size:1.25rem;font-weight:700}
+p{color:var(--muted);line-height:1.75;font-size:.95rem}
+em.styled{font-style:italic;color:var(--teal-mid)}
+
+/* ── LAYOUT ─────────────────────────────────────────────── */
+.container{max-width:1140px;margin:0 auto;padding:0 32px}
+section{position:relative}
+
+/* ── DIVIDER ────────────────────────────────────────────── */
+.rule{width:48px;height:2px;background:var(--teal);margin-bottom:20px;display:block}
+
+/* ── BUTTONS ────────────────────────────────────────────── */
+.btn{
+  display:inline-flex;align-items:center;gap:9px;
+  padding:12px 26px;border-radius:var(--r);
+  font-family:var(--font-body);font-size:.85rem;font-weight:600;
+  letter-spacing:.02em;transition:all .3s var(--ease);
+}
+.btn-primary{background:var(--teal);color:#fff;box-shadow:0 2px 14px rgba(47,92,95,.2)}
+.btn-primary:hover{background:var(--teal-mid);transform:translateY(-2px);box-shadow:0 6px 24px rgba(47,92,95,.28)}
+.btn-outline{border:1.5px solid var(--teal);color:var(--teal);background:transparent}
+.btn-outline:hover{background:var(--teal-pale);transform:translateY(-2px)}
+.btn-ghost{color:var(--teal);font-weight:600;font-size:.88rem;display:inline-flex;align-items:center;gap:6px}
+.btn-ghost:hover{gap:10px}
+.btn-ghost svg{transition:transform .3s var(--ease)}
+.btn-ghost:hover svg{transform:translateX(4px)}
+
+/* ── NAV ────────────────────────────────────────────────── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  padding:18px 0;transition:all .4s var(--ease);
+}
+nav.scrolled{
+  background:rgba(244,242,239,.92);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);padding:12px 0;
+  box-shadow:0 1px 20px rgba(22,26,31,.06);
+}
+.nav-inner{display:flex;align-items:center;justify-content:space-between}
+.nav-logo{display:flex;align-items:center;gap:10px}
+.logo-image{height:36px;width:auto;object-fit:contain;}
+.logo-mark{
+  width:36px;height:36px;border-radius:8px;
+  background:var(--teal);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-head);font-weight:900;font-size:.95rem;color:#fff;letter-spacing:-.02em;
+}
+.logo-text{font-family:var(--font-body);font-size:.78rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2);line-height:1.2}
+.logo-text span{display:block;font-weight:400;color:var(--muted);letter-spacing:.04em;font-size:.68rem}
+.nav-links{display:flex;align-items:center;gap:32px}
+.nav-links a{
+  font-size:.84rem;font-weight:500;color:var(--muted);
+  transition:color .25s;position:relative;
+}
+.nav-links a::after{
+  content:'';position:absolute;bottom:-3px;left:0;right:0;height:1.5px;
+  background:var(--teal);transform:scaleX(0);transition:transform .3s var(--ease);
+}
+.nav-links a:hover{color:var(--ink)}
+.nav-links a:hover::after{transform:scaleX(1)}
+.hamburger{display:none;flex-direction:column;gap:5px;padding:6px;cursor:pointer}
+.hamburger span{width:22px;height:1.5px;background:var(--ink);transition:all .3s}
+
+/* ── MOBILE MENU ────────────────────────────────────────── */
+.mobile-menu{
+  position:fixed;inset:0;z-index:99;
+  background:rgba(244,242,239,.97);backdrop-filter:blur(16px);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:36px;
+  transform:translateX(100%);transition:transform .45s var(--ease);
+}
+.mobile-menu.open{transform:none}
+.mobile-menu a{font-family:var(--font-head);font-size:2.2rem;font-weight:800;color:var(--ink);transition:color .3s}
+.mobile-menu a:hover{color:var(--teal)}
+
+/* ── HERO ───────────────────────────────────────────────── */
+#hero{
+  min-height:100svh;display:flex;align-items:center;
+  padding:120px 0 80px;
+  background:
+    radial-gradient(ellipse 55% 50% at 85% 40%, rgba(47,92,95,.06) 0%, transparent 70%),
+    var(--bg);
+}
+.hero-inner{display:grid;grid-template-columns:55% 1fr;gap:60px;align-items:center}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:10px;margin-bottom:28px;
+}
+.hero-eyebrow .rule{margin:0;width:28px}
+h1 em.styled{display:block}
+.hero-sub{font-size:1.05rem;margin:24px 0 40px;max-width:460px;color:var(--muted);line-height:1.8}
+.hero-actions{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+
+/* Hero right panel */
+.hero-panel{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r2);overflow:hidden;
+  box-shadow:var(--shadow2);
+}
+.panel-header{
+  padding:16px 20px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--bg1);
+}
+.panel-title{font-family:var(--font-mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.panel-badge{
+  padding:3px 10px;border-radius:20px;
+  background:rgba(47,92,95,.1);color:var(--teal);
+  font-family:var(--font-mono);font-size:.62rem;letter-spacing:.08em;
+}
+.panel-badge::before{content:'● ';font-size:.6rem}
+.panel-body{padding:24px}
+.terminal-line{
+  display:flex;gap:10px;margin-bottom:8px;
+  font-family:var(--font-mono);font-size:.72rem;line-height:1.6;
+}
+.t-prompt{color:var(--teal);flex-shrink:0}
+.t-cmd{color:var(--ink2)}
+.t-out{color:var(--muted)}
+.t-ok{color:#3d767a}
+.t-warn{color:#c47a1e}
+.t-cursor{display:inline-block;width:7px;height:12px;background:var(--teal);animation:blink .9s infinite;vertical-align:middle}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+/* availability strip below terminal */
+.panel-strip{
+  padding:14px 20px;border-top:1px solid var(--border);
+  background:var(--teal-pale);
+  display:flex;align-items:center;gap:10px;
+}
+.strip-dot{width:7px;height:7px;border-radius:50%;background:var(--teal);animation:pulse 2s infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.panel-strip span{font-family:var(--font-mono);font-size:.68rem;color:var(--teal)}
+
+/* ── TRUST BAR ──────────────────────────────────────────── */
+#trust{
+  padding:20px 0;
+  border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+  background:var(--surface);
+}
+.trust-inner{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
+.trust-item{
+  display:flex;align-items:center;gap:9px;
+  font-family:var(--font-mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
+}
+.trust-icon{
+  width:28px;height:28px;border-radius:7px;
+  background:var(--teal-pale);border:1px solid var(--teal-pale2);
+  display:flex;align-items:center;justify-content:center;color:var(--teal);
+}
+.trust-sep{width:1px;height:18px;background:var(--border)}
+
+/* ── SERVICES ───────────────────────────────────────────── */
+#services{padding:130px 0}
+.section-header{margin-bottom:70px}
+.section-header .label{margin-bottom:12px;display:block}
+.section-header h2{margin-bottom:16px}
+.section-header p{max-width:480px;font-size:1rem}
+
+/* Editorial split: alternating image+text layout */
+.service-block{
+  display:grid;grid-template-columns:1fr 1fr;gap:0;
+  border:1px solid var(--border);border-radius:var(--r2);
+  overflow:hidden;margin-bottom:24px;
+  background:var(--surface);
+  box-shadow:var(--shadow);
+  transition:box-shadow .3s;
+}
+.service-block:hover{box-shadow:var(--shadow2)}
+.service-block.reverse{direction:rtl}
+.service-block.reverse > *{direction:ltr}
+.sb-visual{
+  background:var(--bg1);position:relative;overflow:hidden;min-height:300px;
+  display:flex;align-items:center;justify-content:center;
+  border-right:1px solid var(--border);
+}
+.service-block.reverse .sb-visual{border-right:none;border-left:1px solid var(--border)}
+.sb-visual-inner{
+  width:100%;height:100%;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;
+}
+/* Decorative abstract for each service */
+.vis-grid{
+  position:absolute;inset:0;
+  background-image:linear-gradient(rgba(47,92,95,.04) 1px,transparent 1px),
+    linear-gradient(90deg, rgba(47,92,95,.04) 1px,transparent 1px);
+  background-size:32px 32px;
+}
+.vis-node{
+  width:56px;height:56px;border-radius:14px;
+  background:var(--teal);
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;position:relative;z-index:1;
+  box-shadow:0 8px 32px rgba(47,92,95,.22);
+}
+.vis-orbit{
+  position:absolute;border-radius:50%;border:1px solid rgba(47,92,95,.12);
+}
+.vis-orbit.o1{width:120px;height:120px}
+.vis-orbit.o2{width:200px;height:200px}
+.vis-orbit.o3{width:280px;height:280px}
+.vis-dot{
+  position:absolute;width:8px;height:8px;border-radius:50%;
+  background:var(--teal-pale2);border:1.5px solid var(--teal);
+  top:50%;transform:translateY(-50%);
+}
+.vis-dot.d1{left:-4px}
+.vis-dot.d2{right:-4px}
+
+.sb-content{padding:52px 48px;display:flex;flex-direction:column;justify-content:center}
+.sb-num{font-family:var(--font-mono);font-size:.65rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.sb-sub{margin-bottom:10px;display:block}
+.sb-content h3{font-size:1.75rem;margin-bottom:18px;font-weight:800}
+.sb-content p{font-size:.93rem;line-height:1.8;margin-bottom:28px}
+.sb-features{display:flex;flex-direction:column;gap:10px;margin-bottom:32px}
+.sb-feat{display:flex;align-items:center;gap:10px;font-size:.85rem;color:var(--ink2);font-weight:500}
+.feat-dot{width:5px;height:5px;border-radius:50%;background:var(--teal);flex-shrink:0}
+
+/* two-column smaller cards for security sub-features */
+.sb-mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:28px}
+.sb-mini{
+  padding:16px;border-radius:var(--r);
+  background:var(--bg);border:1px solid var(--border);
+}
+.sb-mini h4{font-size:.85rem;font-weight:700;margin-bottom:5px;font-family:var(--font-body)}
+.sb-mini p{font-size:.78rem;line-height:1.6;color:var(--muted);margin:0}
+
+/* ── METRICS ────────────────────────────────────────────── */
+#metrics{
+  padding:80px 0;
+  background:var(--teal);
+  overflow:hidden;
+}
+.metrics-inner{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(255,255,255,.08)}
+.met{
+  background:var(--teal);padding:52px 32px;text-align:center;
+  transition:background .3s;position:relative;overflow:hidden;
+}
+.met:hover{background:var(--teal-mid)}
+.met-val{
+  font-family:var(--font-head);font-size:3rem;font-weight:900;
+  color:#fff;line-height:1;margin-bottom:10px;
+}
+.met-label{font-family:var(--font-mono);font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.55)}
+
+/* ── PROCESS ────────────────────────────────────────────── */
+#process{padding:130px 0;background:var(--surface)}
+.process-header{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start;margin-bottom:80px}
+.process-badge{
+  padding:8px 16px;border-radius:6px;
+  background:var(--teal-pale);border:1px solid var(--teal-pale2);
+  font-family:var(--font-mono);font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;color:var(--teal);
+  display:inline-block;margin-bottom:20px;
+}
+.process-right p{font-size:1rem;color:var(--muted);line-height:1.8;margin-bottom:20px}
+.blockquote{
+  border-left:2.5px solid var(--teal);padding-left:20px;
+  font-family:var(--font-head);font-size:1.05rem;font-style:italic;color:var(--ink2);
+  line-height:1.6;margin-top:24px;
+}
+.blockquote cite{display:block;margin-top:10px;font-style:normal;font-family:var(--font-mono);font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+
+/* Phase cards */
+.phases{display:flex;flex-direction:column;gap:0}
+.phase{
+  display:grid;grid-template-columns:160px 1fr;
+  border-top:1px solid var(--border);padding:40px 0;gap:48px;align-items:start;
+}
+.phase:last-child{border-bottom:1px solid var(--border)}
+.phase-label{
+  position:sticky;top:90px;
+}
+.phase-tag{
+  display:inline-block;padding:5px 12px;border-radius:5px;
+  background:var(--teal-pale);
+  font-family:var(--font-mono);font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--teal);
+  margin-bottom:10px;
+}
+.phase-num{
+  font-family:var(--font-head);font-size:3.5rem;font-weight:900;
+  color:var(--bg2);line-height:1;user-select:none;
+}
+.phase-content h3{font-size:1.55rem;margin-bottom:14px;font-weight:800}
+.phase-content p{font-size:.93rem;line-height:1.8;margin-bottom:24px}
+.phase-items{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.phase-item{
+  padding:16px 18px;border-radius:var(--r);
+  background:var(--bg);border:1px solid var(--border);
+  transition:all .25s;
+}
+.phase-item:hover{border-color:var(--teal-pale2);background:var(--teal-pale)}
+.phase-item h4{font-size:.85rem;font-weight:600;margin-bottom:4px;font-family:var(--font-body);color:var(--ink2)}
+.phase-item p{font-size:.78rem;color:var(--muted);margin:0;line-height:1.6}
+
+/* Phase 2 — ROI cards */
+.roi-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.roi-card{
+  padding:22px;border-radius:var(--r);
+  background:var(--bg);border:1px solid var(--border);
+}
+.roi-card .rc-label{font-family:var(--font-mono);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.roi-card .rc-val{font-family:var(--font-head);font-size:2rem;font-weight:800;color:var(--teal);margin-bottom:6px}
+.roi-track{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:10px}
+.roi-fill{height:100%;background:var(--teal);border-radius:2px;transition:width 1.4s var(--ease);width:0}
+.roi-card p{font-size:.78rem;color:var(--muted);margin:0}
+.phase-tags{display:flex;gap:8px;flex-wrap:wrap}
+.ptag{
+  padding:4px 12px;border-radius:20px;
+  background:var(--teal-pale);border:1px solid var(--teal-pale2);
+  font-family:var(--font-mono);font-size:.62rem;letter-spacing:.06em;color:var(--teal);
+}
+
+/* Phase 3 — timeline */
+.roadmap-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px}
+.rm-card{
+  padding:22px;border-radius:var(--r);
+  background:var(--bg);border:1px solid var(--border);
+  transition:all .25s;
+}
+.rm-card:hover{border-color:var(--teal-pale2);background:var(--teal-pale)}
+.rm-period{font-family:var(--font-mono);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.rm-card h4{font-size:.95rem;font-weight:700;margin-bottom:7px;font-family:var(--font-body);color:var(--ink2)}
+.rm-card p{font-size:.8rem;color:var(--muted);margin:0;line-height:1.6}
+
+/* ── DISCOVERY CTA BLOCK ────────────────────────────────── */
+#discovery{
+  padding:100px 0;
+  background:var(--bg);
+}
+.discovery-inner{
+  background:var(--teal);border-radius:var(--r2);
+  padding:72px 80px;
+  display:grid;grid-template-columns:1fr auto;gap:60px;align-items:center;
+  overflow:hidden;position:relative;
+}
+.disc-bg{
+  position:absolute;right:-80px;top:-80px;
+  width:360px;height:360px;border-radius:50%;
+  background:rgba(255,255,255,.04);
+}
+.disc-bg2{
+  position:absolute;right:80px;bottom:-100px;
+  width:200px;height:200px;border-radius:50%;
+  background:rgba(255,255,255,.03);
+}
+.discovery-inner h2{color:#fff;font-size:clamp(1.8rem,3vw,2.4rem);margin-bottom:16px}
+.discovery-inner p{color:rgba(255,255,255,.65);font-size:.98rem;line-height:1.8;max-width:480px}
+.disc-cta{flex-shrink:0;position:relative;z-index:1}
+.btn-white{background:#fff;color:var(--teal);font-weight:600;padding:14px 30px;border-radius:var(--r);display:inline-flex;align-items:center;gap:8px;transition:all .3s var(--ease);white-space:nowrap}
+.btn-white:hover{background:var(--teal-pale);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.15)}
+.btn-white-outline{border:1.5px solid rgba(255,255,255,.35);color:#fff;background:transparent;padding:14px 30px;border-radius:var(--r);display:inline-flex;align-items:center;gap:8px;font-weight:500;font-size:.88rem;transition:all .3s;white-space:nowrap;margin-top:12px}
+.btn-white-outline:hover{background:rgba(255,255,255,.08)}
+.disc-cta-btns{display:flex;flex-direction:column;gap:0}
+
+/* ── QUOTE FORM ─────────────────────────────────────────── */
+#quote{padding:130px 0;background:var(--surface)}
+.quote-grid{display:grid;grid-template-columns:1fr 1.4fr;gap:80px;align-items:start}
+.quote-left .label{display:block;margin-bottom:14px}
+.quote-left h2{margin-bottom:18px}
+.quote-left p{font-size:.95rem;line-height:1.8;margin-bottom:32px}
+.ql-quote{
+  border-left:2.5px solid var(--teal);padding:20px 24px;
+  background:var(--teal-pale);border-radius:0 var(--r) var(--r) 0;
+  margin-bottom:28px;
+}
+.ql-quote p{
+  font-family:var(--font-head);font-style:italic;font-size:1rem;
+  color:var(--ink2);margin:0;line-height:1.65;
+}
+.ql-quote cite{display:block;margin-top:8px;font-style:normal;font-family:var(--font-mono);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.ql-secure{
+  display:flex;align-items:center;gap:12px;
+  padding:14px 18px;border-radius:var(--r);
+  border:1px solid var(--border);background:var(--bg);
+}
+.ql-secure-icon{
+  width:36px;height:36px;border-radius:8px;flex-shrink:0;
+  background:var(--teal-pale);border:1px solid var(--teal-pale2);
+  display:flex;align-items:center;justify-content:center;color:var(--teal);
+}
+.ql-secure-text{font-size:.82rem}
+.ql-secure-text strong{display:block;font-weight:600;color:var(--ink2);font-size:.84rem}
+.ql-secure-text span{color:var(--muted);font-size:.78rem}
+
+/* Form */
+.quote-form{
+  background:var(--bg);border:1px solid var(--border);
+  border-radius:var(--r2);padding:40px;
+  box-shadow:var(--shadow);
+}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.form-group{margin-bottom:18px}
+.form-label{
+  display:block;font-family:var(--font-mono);font-size:.65rem;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:7px;
+}
+.form-input{
+  width:100%;padding:12px 16px;
+  background:var(--surface);border:1.5px solid var(--border);
+  border-radius:var(--r);color:var(--ink);font-size:.9rem;
+  transition:all .25s;outline:none;
+}
+.form-input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(47,92,95,.08)}
+.form-input::placeholder{color:var(--muted);opacity:.7}
+select.form-input{cursor:pointer}
+select.form-input option{background:var(--surface)}
+textarea.form-input{resize:vertical;min-height:110px}
+
+/* Service pills inside form */
+.service-pills{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:4px}
+.sp{
+  padding:10px 12px;border-radius:var(--r);
+  border:1.5px solid var(--border);background:var(--surface);
+  cursor:pointer;transition:all .25s;text-align:center;
+  font-size:.8rem;font-weight:600;color:var(--muted);
+}
+.sp:hover{border-color:var(--teal-pale2);color:var(--teal)}
+.sp.sel{border-color:var(--teal);color:var(--teal);background:var(--teal-pale)}
+
+.form-submit-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-top:8px}
+.form-note{font-family:var(--font-mono);font-size:.65rem;color:var(--muted)}
+
+/* Success state */
+.form-success{display:none;text-align:center;padding:24px 0;animation:fadeIn .4s var(--ease)}
+.success-circle{
+  width:64px;height:64px;border-radius:50%;
+  background:var(--teal-pale);border:1.5px solid var(--teal-pale2);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 20px;color:var(--teal);font-size:1.6rem;
+}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* Credentials below form */
+.cred-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:40px}
+.cred{
+  padding:20px;border-radius:var(--r);
+  background:var(--bg);border:1px solid var(--border);
+  transition:all .25s;
+}
+.cred:hover{border-color:var(--teal-pale2);background:var(--teal-pale)}
+.cred-icon{
+  width:34px;height:34px;border-radius:8px;
+  background:var(--teal-pale);border:1px solid var(--teal-pale2);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--teal);margin-bottom:12px;
+}
+.cred h4{font-size:.88rem;font-weight:700;margin-bottom:6px;font-family:var(--font-body)}
+.cred p{font-size:.78rem;color:var(--muted);margin:0;line-height:1.6}
+
+/* ── FOOTER ─────────────────────────────────────────────── */
+footer{
+  padding:70px 0 36px;
+  border-top:1px solid var(--border);
+  background:var(--ink);
+}
+.footer-top{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:60px;margin-bottom:60px}
+.footer-brand .logo-image{height:36px;width:auto;object-fit:contain;}
+.logo-mark{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);margin-bottom:14px}
+.footer-brand .logo-text{color:rgba(255,255,255,.8)}
+.footer-brand .logo-text span{color:rgba(255,255,255,.4)}
+.footer-brand p{font-size:.85rem;color:rgba(255,255,255,.4);margin-top:14px;max-width:240px;line-height:1.75}
+.footer-col h5{font-family:var(--font-mono);font-size:.65rem;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:20px}
+.footer-col ul{display:flex;flex-direction:column;gap:11px}
+.footer-col ul li a{font-size:.85rem;color:rgba(255,255,255,.5);transition:color .25s}
+.footer-col ul li a:hover{color:rgba(255,255,255,.9)}
+.footer-bottom{
+  display:flex;align-items:center;justify-content:space-between;
+  padding-top:28px;border-top:1px solid rgba(255,255,255,.06);flex-wrap:wrap;gap:14px;
+}
+.footer-copy{font-family:var(--font-mono);font-size:.65rem;color:rgba(255,255,255,.3)}
+.footer-socials{display:flex;gap:10px}
+.social-btn{
+  width:34px;height:34px;border-radius:7px;
+  border:1px solid rgba(255,255,255,.1);
+  display:flex;align-items:center;justify-content:center;
+  color:rgba(255,255,255,.4);transition:all .25s;
+}
+.social-btn:hover{border-color:rgba(255,255,255,.25);color:rgba(255,255,255,.8)}
+
+/* ── SCROLL REVEAL ──────────────────────────────────────── */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .65s var(--ease),transform .65s var(--ease)}
+.reveal.visible{opacity:1;transform:none}
+.reveal-delay-1{transition-delay:.1s}
+.reveal-delay-2{transition-delay:.2s}
+.reveal-delay-3{transition-delay:.3s}
+.reveal-delay-4{transition-delay:.4s}
+
+/* ── RESPONSIVE ─────────────────────────────────────────── */
+@media(max-width:960px){
+  .hero-inner{grid-template-columns:1fr;gap:40px}
+  .service-block,.service-block.reverse{grid-template-columns:1fr;direction:ltr}
+  .sb-visual{min-height:200px;border-right:none!important;border-left:none!important;border-bottom:1px solid var(--border)}
+  .sb-mini-grid{grid-template-columns:1fr}
+  .metrics-inner{grid-template-columns:repeat(2,1fr)}
+  .process-header{grid-template-columns:1fr}
+  .phase{grid-template-columns:1fr;gap:20px}
+  .phase-label{position:static}
+  .roadmap-grid{grid-template-columns:1fr}
+  .roi-cards{grid-template-columns:1fr}
+  .quote-grid{grid-template-columns:1fr}
+  .discovery-inner{grid-template-columns:1fr;padding:48px 36px}
+  .footer-top{grid-template-columns:1fr 1fr;gap:40px}
+  .service-pills{grid-template-columns:1fr 1fr}
+  .cred-strip{grid-template-columns:1fr}
+  .nav-links{display:none}
+  nav .btn{display:none}
+  .hamburger{display:flex}
+}
+@media(max-width:600px){
+  .metrics-inner{grid-template-columns:1fr 1fr}
+  .phase-items{grid-template-columns:1fr}
+  .footer-top{grid-template-columns:1fr}
+  .form-row{grid-template-columns:1fr}
+  .service-pills{grid-template-columns:1fr}
+  .discovery-inner{padding:36px 24px}
+  .hero-actions{flex-direction:column;align-items:flex-start}
+  .trust-inner{gap:10px}
+  .trust-sep{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#services" onclick="closeMobile()">Services</a>
+  <a href="#process" onclick="closeMobile()">Process</a>
+  <a href="#discovery" onclick="closeMobile()">Discovery</a>
+  <a href="#quote" onclick="closeMobile()">Contact</a>
+</div>
+
+<!-- NAV -->
+<nav id="navbar">
+  <div class="container nav-inner">
+    <div class="nav-logo">
+      <img src="logo.png" alt="CAS Logo" class="logo-image">
+      <div class="logo-text">Core Adaptive Systems<span>Technology Consultancy</span></div>
+    </div>
+    <ul class="nav-links">
+      <li><a href="#services">Expertise</a></li>
+      <li><a href="#process">Process</a></li>
+      <li><a href="#discovery">Discovery</a></li>
+      <li><a href="#quote">Contact</a></li>
+    </ul>
+    <a href="#quote" class="btn btn-primary">Request Quote</a>
+    <div class="hamburger" id="hamburger" onclick="toggleMenu()">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="container">
+    <div class="hero-inner">
+      <div>
+        <div class="hero-eyebrow reveal">
+          <span class="rule"></span>
+          <span class="label">End-to-End Digital Transformation</span>
+        </div>
+        <h1 class="reveal reveal-delay-1">
+          Architecting<br>
+          <em class="styled">Adaptive Systems</em><br>
+          for Scale.
+        </h1>
+        <p class="hero-sub reveal reveal-delay-2">
+          We don't just build software — we engineer the digital infrastructure that enables high-growth enterprises to operate with precision, resilience, and intelligence at every layer.
+        </p>
+        <div class="hero-actions reveal reveal-delay-3">
+          <a href="#quote" class="btn btn-primary">
+            Start a Consultation
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+          <a href="#process" class="btn btn-outline">View Our Process</a>
+        </div>
+      </div>
+
+      <!-- Terminal panel -->
+      <div class="reveal reveal-delay-2">
+        <div class="hero-panel">
+          <div class="panel-header">
+            <span class="panel-title">cas-audit — workflow analysis</span>
+            <span class="panel-badge">Running</span>
+          </div>
+          <div class="panel-body">
+            <div class="terminal-line"><span class="t-prompt">▸</span><span class="t-cmd">cas scan --target enterprise --depth full</span></div>
+            <div class="terminal-line"><span class="t-prompt"> </span><span class="t-out">Initializing workflow analyzer...</span></div>
+            <div class="terminal-line"><span class="t-prompt"> </span><span class="t-out" style="color:var(--teal-mid)">→ Mapping 247 business processes</span></div>
+            <div class="terminal-line"><span class="t-prompt"> </span><span class="t-out">Human touchpoints catalogued: <span class="t-ok">89 found</span></span></div>
+            <div class="terminal-line"><span class="t-prompt"> </span><span class="t-out">Bottlenecks flagged: <span class="t-warn">14 critical</span></span></div>
+            <div class="terminal-line" style="margin-top:8px"><span class="t-prompt"> </span><span class="t-out" style="color:var(--teal-mid)">→ Automation candidates:</span></div>
+            <div class="terminal-line"><span class="t-prompt"> </span><span class="t-out">&nbsp;&nbsp;✓ Invoice routing workflow</span></div>
+            <div class="terminal-line"><span class="t-prompt"> </span><span class="t-out">&nbsp;&nbsp;✓ Lead qualification pipeline</span></div>
+            <div class="terminal-line"><span class="t-prompt"> </span><span class="t-out">&nbsp;&nbsp;✓ Security event response loop</span></div>
+            <div class="terminal-line" style="margin-top:8px"><span class="t-prompt"> </span><span class="t-ok">✔ Discovery report ready.</span></div>
+            <div class="terminal-line"><span class="t-prompt">▸</span><span class="t-cursor"></span></div>
+          </div>
+          <div class="panel-strip">
+            <div class="strip-dot"></div>
+            <span>Active Analysis: Logistics Pipeline</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRUST BAR -->
+<section id="trust">
+  <div class="container">
+    <div class="trust-inner">
+      <div class="trust-item">
+        <div class="trust-icon">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        SOC 2 Compliant
+      </div>
+      <div class="trust-sep"></div>
+      <div class="trust-item">
+        <div class="trust-icon">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+        </div>
+        24/7 Monitoring
+      </div>
+      <div class="trust-sep"></div>
+      <div class="trust-item">
+        <div class="trust-icon">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        </div>
+        ISO 27001 Aligned
+      </div>
+      <div class="trust-sep"></div>
+      <div class="trust-item">
+        <div class="trust-icon">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        </div>
+        Zero-Trust Architecture
+      </div>
+      <div class="trust-sep"></div>
+      <div class="trust-item">
+        <div class="trust-icon">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+        99.9% Uptime SLA
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="label">Core Competencies</span>
+      <span class="rule"></span>
+      <h2>Built for scale,<br>secured for longevity.</h2>
+      <p>Four interconnected service pillars, engineered to operate as a unified digital infrastructure layer for your business.</p>
+    </div>
+
+    <!-- SaaS -->
+    <div class="service-block reveal">
+      <div class="sb-visual">
+        <div class="vis-grid"></div>
+        <div class="sb-visual-inner">
+          <div class="vis-orbit o3"></div>
+          <div class="vis-orbit o2"><div class="vis-dot d1"></div></div>
+          <div class="vis-orbit o1"><div class="vis-dot d2"></div></div>
+          <div class="vis-node">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          </div>
+        </div>
+      </div>
+      <div class="sb-content">
+        <span class="sb-num">01 / Infrastructure</span>
+        <span class="label sb-sub">Software & Web Engineering</span>
+        <h3>Custom SaaS Development</h3>
+        <p>Cloud-native architectures designed for infinite horizontal scaling, multi-tenant security isolation, and seamless feature deployment. We build platforms that stay performant as your user base grows.</p>
+        <div class="sb-features">
+          <div class="sb-feat"><div class="feat-dot"></div>Microservices Orchestration</div>
+          <div class="sb-feat"><div class="feat-dot"></div>High-Concurrency Data Models</div>
+          <div class="sb-feat"><div class="feat-dot"></div>Edge Computing Integration</div>
+        </div>
+        <a href="#quote" class="btn-ghost">
+          View Case Study
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <!-- AI Agents -->
+    <div class="service-block reverse reveal">
+      <div class="sb-visual" style="background:var(--teal);border-right:none;border-left:1px solid var(--border)">
+        <div class="sb-visual-inner" style="flex-direction:column;gap:20px;padding:32px">
+          <div style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:12px;padding:18px 20px;width:100%;max-width:220px">
+            <div style="font-family:var(--font-mono);font-size:.62rem;color:rgba(255,255,255,.5);margin-bottom:4px">Cognitive Logic</div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <svg width="16" height="16" fill="none" stroke="rgba(255,255,255,.7)" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+              <span style="font-size:.8rem;color:rgba(255,255,255,.8);font-weight:500">Autonomous Reasoning</span>
+            </div>
+          </div>
+          <div style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:22px 24px;width:100%;max-width:220px;text-align:center">
+            <svg width="28" height="28" fill="none" stroke="rgba(255,255,255,.9)" stroke-width="1.6" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            <div style="margin-top:10px;font-size:.82rem;color:rgba(255,255,255,.8);font-weight:600">Automated Workflows</div>
+          </div>
+        </div>
+      </div>
+      <div class="sb-content">
+        <span class="sb-num">02 / Intelligence</span>
+        <span class="label sb-sub">AI Agent Systems</span>
+        <h3>AI Agent Implementation</h3>
+        <p>Beyond simple LLMs, we deploy autonomous agents that integrate directly into your toolchain — bridging the gap between static data and dynamic operational action.</p>
+        <div class="sb-features">
+          <div class="sb-feat"><div class="feat-dot"></div>LLM Pipeline Architecture</div>
+          <div class="sb-feat"><div class="feat-dot"></div>Multi-Agent Orchestration</div>
+          <div class="sb-feat"><div class="feat-dot"></div>Real-Time Decision Execution</div>
+        </div>
+        <a href="#quote" class="btn-ghost">
+          Explore Agent Capabilities
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <!-- Automation -->
+    <div class="service-block reveal">
+      <div class="sb-visual">
+        <div class="vis-grid"></div>
+        <div class="sb-visual-inner" style="flex-direction:column;gap:12px;padding:32px">
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 18px;width:100%;max-width:240px;display:flex;align-items:center;gap:12px">
+            <div style="width:8px;height:8px;border-radius:50%;background:#3d767a;flex-shrink:0;box-shadow:0 0 6px rgba(42,122,90,.5)"></div>
+            <div>
+              <div style="font-size:.78rem;font-weight:600;color:var(--ink2)">Invoice Routing</div>
+              <div style="font-family:var(--font-mono);font-size:.62rem;color:var(--muted)">Automated · Saves 23 hrs/wk</div>
+            </div>
+          </div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 18px;width:100%;max-width:240px;display:flex;align-items:center;gap:12px">
+            <div style="width:8px;height:8px;border-radius:50%;background:var(--teal);flex-shrink:0;box-shadow:0 0 6px rgba(47,92,95,.4)"></div>
+            <div>
+              <div style="font-size:.78rem;font-weight:600;color:var(--ink2)">Lead Qualification</div>
+              <div style="font-family:var(--font-mono);font-size:.62rem;color:var(--muted)">Active · Real-time scoring</div>
+            </div>
+          </div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 18px;width:100%;max-width:240px;display:flex;align-items:center;gap:12px">
+            <div style="width:8px;height:8px;border-radius:50%;background:#c47a1e;flex-shrink:0;box-shadow:0 0 6px rgba(196,122,30,.4)"></div>
+            <div>
+              <div style="font-size:.78rem;font-weight:600;color:var(--ink2)">Reporting Pipeline</div>
+              <div style="font-family:var(--font-mono);font-size:.62rem;color:var(--muted)">Pending · Deploying in 5d</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="sb-content">
+        <span class="sb-num">03 / Automation</span>
+        <span class="label sb-sub">Business Process Automation</span>
+        <h3>Intelligent Automation</h3>
+        <p>We map your operational workflows end-to-end, identify manual chokepoints, and deploy bespoke automation systems that permanently replace repetitive human-intensive processes.</p>
+        <div class="sb-features">
+          <div class="sb-feat"><div class="feat-dot"></div>Workflow Observation & Mapping</div>
+          <div class="sb-feat"><div class="feat-dot"></div>RPA & API Integration</div>
+          <div class="sb-feat"><div class="feat-dot"></div>Real-Time Dashboarding</div>
+        </div>
+        <a href="#quote" class="btn-ghost">
+          Schedule Discovery Session
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <!-- Security -->
+    <div class="service-block reverse reveal">
+      <div class="sb-visual" style="background:var(--ink);border-right:none;border-left:1px solid var(--border)">
+        <div class="vis-grid" style="background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px)"></div>
+        <div class="sb-visual-inner" style="padding:32px;flex-direction:column;gap:14px">
+          <div style="font-family:var(--font-mono);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.3);align-self:flex-start">Security Posture</div>
+          <div style="width:100%;max-width:240px;display:flex;flex-direction:column;gap:10px">
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:4px;font-family:var(--font-mono);font-size:.62rem;color:rgba(255,255,255,.4)"><span>Perimeter Defense</span><span style="color:rgba(255,255,255,.7)">Secured</span></div>
+              <div style="height:3px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden"><div style="width:94%;height:100%;background:var(--teal-lt);border-radius:2px"></div></div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:4px;font-family:var(--font-mono);font-size:.62rem;color:rgba(255,255,255,.4)"><span>Access Control</span><span style="color:rgba(255,255,255,.7)">Zero-Trust</span></div>
+              <div style="height:3px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden"><div style="width:100%;height:100%;background:var(--teal-lt);border-radius:2px"></div></div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:4px;font-family:var(--font-mono);font-size:.62rem;color:rgba(255,255,255,.4)"><span>Endpoint Detection</span><span style="color:rgba(255,255,255,.7)">Active</span></div>
+              <div style="height:3px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden"><div style="width:88%;height:100%;background:var(--teal-lt);border-radius:2px"></div></div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:4px;font-family:var(--font-mono);font-size:.62rem;color:rgba(255,255,255,.4)"><span>Data Encryption</span><span style="color:rgba(255,255,255,.7)">256-bit</span></div>
+              <div style="height:3px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden"><div style="width:100%;height:100%;background:var(--teal-lt);border-radius:2px"></div></div>
+            </div>
+          </div>
+          <div style="padding:12px 16px;border-radius:8px;background:rgba(47,92,95,.25);border:1px solid rgba(61,140,122,.25);display:flex;align-items:center;gap:8px;width:100%;max-width:240px">
+            <div style="width:6px;height:6px;border-radius:50%;background:var(--teal-lt);flex-shrink:0"></div>
+            <span style="font-family:var(--font-mono);font-size:.62rem;color:rgba(255,255,255,.6)">All systems operational</span>
+          </div>
+        </div>
+      </div>
+      <div class="sb-content">
+        <span class="sb-num">04 / Fortification</span>
+        <span class="label sb-sub">Infrastructure & Security</span>
+        <h3>Zero-Trust Network Security</h3>
+        <p>We audit your entire network stack — from firewall rules and switch configurations to cloud IAM policies — and redesign it around zero-trust principles that withstand modern threat actors.</p>
+        <div class="sb-mini-grid">
+          <div class="sb-mini">
+            <h4>Identity Verification</h4>
+            <p>Continuous authentication treating every request as an external threat regardless of origin.</p>
+          </div>
+          <div class="sb-mini">
+            <h4>Quantum-Ready Encryption</h4>
+            <p>Cryptographic standards designed to withstand next-generation compute capabilities.</p>
+          </div>
+          <div class="sb-mini">
+            <h4>Real-Time Perimeter</h4>
+            <p>AI-driven anomaly detection that neutralizes threats at the edge before they penetrate core systems.</p>
+          </div>
+          <div class="sb-mini">
+            <h4>Compliance Alignment</h4>
+            <p>Architecture designed to meet SOC 2, ISO 27001, and NIST frameworks from day one.</p>
+          </div>
+        </div>
+        <a href="#quote" class="btn-ghost">
+          Request Security Audit
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- METRICS -->
+<section id="metrics">
+  <div class="container" style="padding:0">
+    <div class="metrics-inner">
+      <div class="met reveal">
+        <div class="met-val" data-target="99.9">0</div>
+        <div class="met-label">% Uptime SLA</div>
+      </div>
+      <div class="met reveal reveal-delay-1">
+        <div class="met-val" data-target="256" data-suffix="-bit">—</div>
+        <div class="met-label">Encryption Standard</div>
+      </div>
+      <div class="met reveal reveal-delay-2">
+        <div class="met-val" data-target="72" data-suffix="h">0h</div>
+        <div class="met-label">Discovery Turnaround</div>
+      </div>
+      <div class="met reveal reveal-delay-3">
+        <div class="met-val" data-target="100" data-suffix="%">0%</div>
+        <div class="met-label">Zero-Trust Compliant</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section id="process">
+  <div class="container">
+    <div class="process-header reveal">
+      <div>
+        <div class="process-badge">Our Methodology</div>
+        <h2>The Discovery<br>Process.</h2>
+        <p style="margin-top:16px;color:var(--muted);font-size:.95rem;max-width:380px">A rigorous architectural approach to digital transformation. We map your current state to engineer your future efficiency.</p>
+        <div style="margin-top:28px;display:flex;align-items:center;gap:8px">
+          <span style="font-family:var(--font-head);font-size:3.5rem;font-weight:900;color:var(--teal)">03</span>
+          <span style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)">Defined<br>Phased Pillars</span>
+        </div>
+      </div>
+      <div class="process-right reveal reveal-delay-1">
+        <p>Our proprietary discovery audit identifies technical debt and manual bottlenecks before a single line of code is written. Every automation we deploy is grounded in observed operational reality.</p>
+        <div class="blockquote">
+          "The first step to automation is not writing code, but understanding the value of the human effort it replaces."
+          <cite>— Managing Principal Architect, CAS</cite>
+        </div>
+      </div>
+    </div>
+
+    <div class="phases">
+      <!-- Phase 1 -->
+      <div class="phase reveal">
+        <div class="phase-label">
+          <div class="phase-tag">Phase 01</div>
+          <div class="phase-num">01</div>
+        </div>
+        <div class="phase-content">
+          <h3>Audit: Mapping Workflows</h3>
+          <p>We begin by documenting every touchpoint in your operational ecosystem. Our team conducts deep-dive interviews and shadow sessions to uncover "shadow IT" and manual workarounds invisible to standard reporting.</p>
+          <div class="phase-items">
+            <div class="phase-item">
+              <h4>Bottleneck Identification</h4>
+              <p>Locating friction points in inter-departmental handoffs and data flows.</p>
+            </div>
+            <div class="phase-item">
+              <h4>Toolchain Inventory</h4>
+              <p>Assessing the health and integration levels of your existing software stack.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phase 2 -->
+      <div class="phase reveal">
+        <div class="phase-label">
+          <div class="phase-tag">Phase 02</div>
+          <div class="phase-num">02</div>
+        </div>
+        <div class="phase-content">
+          <h3>Analysis: Opportunity Mapping</h3>
+          <p>Our signature matrix calculates the delta between manual process overhead and automated efficiency gains — giving you a clear picture of where intervention delivers the most impact.</p>
+          <div class="roi-cards">
+            <div class="roi-card">
+              <div class="rc-label">Manual Inefficiency Rate</div>
+              <div class="rc-val">82%</div>
+              <div class="roi-track"><div class="roi-fill" data-width="82"></div></div>
+              <p>Current resource allocation lost to repetitive data entry and non-value-added administrative tasks.</p>
+            </div>
+            <div class="roi-card">
+              <div class="rc-label">Automation Opportunity Score</div>
+              <div class="rc-val">3.4×</div>
+              <div class="roi-track"><div class="roi-fill" data-width="68" style="background:var(--teal-mid)"></div></div>
+              <p>Projected operational throughput multiplier within the first 12 months of targeted automation deployment.</p>
+            </div>
+          </div>
+          <div class="phase-tags">
+            <span class="ptag">Predictive Modeling</span>
+            <span class="ptag">Risk Mitigation</span>
+            <span class="ptag">Cost-Benefit Matrix</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phase 3 -->
+      <div class="phase reveal">
+        <div class="phase-label">
+          <div class="phase-tag">Phase 03</div>
+          <div class="phase-num">03</div>
+        </div>
+        <div class="phase-content">
+          <h3>Roadmap: Phased Deployment</h3>
+          <p>Every engagement follows a structured three-phase deployment that minimizes disruption while delivering measurable system improvements at each milestone.</p>
+          <div class="roadmap-grid">
+            <div class="rm-card">
+              <div class="rm-period">Month 1–2</div>
+              <h4>Foundation & Infrastructure</h4>
+              <p>Establishing core data pipelines and security protocols. Deployment of initial pilot automations in low-risk environments.</p>
+            </div>
+            <div class="rm-card">
+              <div class="rm-period">Month 3–5</div>
+              <h4>Core Integration</h4>
+              <p>Scaling solutions across primary business functions. Real-time monitoring and iterative performance tuning of newly automated workflows.</p>
+            </div>
+            <div class="rm-card">
+              <div class="rm-period">Month 6+</div>
+              <h4>Optimization & Handover</h4>
+              <p>Final system audits, staff training, and transition to internal management with our ongoing architectural support.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DISCOVERY CTA -->
+<section id="discovery">
+  <div class="container">
+    <div class="discovery-inner reveal">
+      <div class="disc-bg"></div><div class="disc-bg2"></div>
+      <div style="position:relative;z-index:1">
+        <span style="font-family:var(--font-mono);font-size:.65rem;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,255,255,.45);display:block;margin-bottom:16px">Start Your Discovery</span>
+        <h2>Ready to audit your<br><em style="font-style:italic;color:rgba(255,255,255,.75)">architecture?</em></h2>
+        <p>Speak with a lead architect to begin your Discovery journey. We'll map your current infrastructure and identify where technology can do more work than people.</p>
+      </div>
+      <div class="disc-cta" style="position:relative;z-index:1">
+        <div class="disc-cta-btns">
+          <a href="#quote" class="btn-white">
+            Start Your Discovery
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+          <a href="#services" class="btn-white-outline">Explore Services</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- QUOTE FORM -->
+<section id="quote">
+  <div class="container">
+    <div class="quote-grid">
+      <div class="quote-left reveal">
+        <span class="label" style="display:block;margin-bottom:12px">Engagement Inquiry</span>
+        <span class="rule"></span>
+        <h2>Define the future of your <em class="styled">digital infrastructure.</em></h2>
+        <p style="margin-top:16px">We specialize in high-stakes architectural consulting for SaaS, AI integration, and core security frameworks. Every engagement begins with a precise evaluation of your needs.</p>
+        <div class="ql-quote">
+          <p>"Architectural integrity is not a luxury — it is the foundation of scale and security."</p>
+          <cite>— Lead Architect, Core Adaptive Systems</cite>
+        </div>
+        <div class="ql-secure">
+          <div class="ql-secure-icon">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <div class="ql-secure-text">
+            <strong>Secure Submission</strong>
+            <span>All project briefs are handled with strict NDA protocols. TLS encryption active.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="reveal reveal-delay-1">
+        <div class="quote-form" id="theForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Company Name *</label>
+              <input class="form-input" type="text" id="f-company" placeholder="e.g. Nexus Corp"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Professional Email *</label>
+              <input class="form-input" type="email" id="f-email" placeholder="name@company.com"/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Project Architecture Type</label>
+            <div class="service-pills">
+              <div class="sp" onclick="this.classList.toggle('sel')">SaaS Development</div>
+              <div class="sp" onclick="this.classList.toggle('sel')">AI & Machine Learning</div>
+              <div class="sp" onclick="this.classList.toggle('sel')">Security Framework</div>
+              <div class="sp" onclick="this.classList.toggle('sel')">Business Automation</div>
+              <div class="sp" onclick="this.classList.toggle('sel')">Infrastructure</div>
+              <div class="sp" onclick="this.classList.toggle('sel')">Discovery Audit</div>
+            </div>
+          </div>
+          <div class="form-row" style="margin-top:4px">
+            <div class="form-group">
+              <label class="form-label">Estimated Budget (USD)</label>
+              <select class="form-input" id="f-budget">
+                <option value="">Select range</option>
+                <option>Under $25,000</option>
+                <option>$25,000 – $75,000</option>
+                <option>$75,000 – $200,000</option>
+                <option>$200,000 – $500,000</option>
+                <option>$500,000+</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Company Size</label>
+              <select class="form-input" id="f-size">
+                <option value="">Select range</option>
+                <option>1–10</option>
+                <option>11–50</option>
+                <option>51–200</option>
+                <option>201–500</option>
+                <option>500+</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Project Brief & Objectives</label>
+            <textarea class="form-input" id="f-message" placeholder="Describe your architectural challenge and primary goals..."></textarea>
+          </div>
+          <div class="form-submit-row">
+            <span class="form-note">Response: 24–48 business hours</span>
+            <button class="btn btn-primary" onclick="submitForm()">
+              Request Professional Evaluation
+              <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-success" id="formSuccess">
+          <div class="success-circle">✓</div>
+          <h3 style="font-family:var(--font-head);font-size:1.4rem;margin-bottom:8px">Inquiry Received</h3>
+          <p style="font-size:.92rem;color:var(--muted)">Our lead architect will reach out within 24–48 hours to schedule your discovery session.</p>
+        </div>
+
+        <!-- Credentials -->
+        <div class="cred-strip reveal reveal-delay-2">
+          <div class="cred">
+            <div class="cred-icon">
+              <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <h4>ISO 27001 Ready</h4>
+            <p>All architectural proposals adhere to global security standards and compliance frameworks.</p>
+          </div>
+          <div class="cred">
+            <div class="cred-icon">
+              <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            </div>
+            <h4>Code Integrity</h4>
+            <p>Our audit processes ensure infrastructure is robust against emerging vulnerabilities from day one.</p>
+          </div>
+          <div class="cred">
+            <div class="cred-icon">
+              <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </div>
+            <h4>Scalability First</h4>
+            <p>Design patterns chosen specifically for high-growth SaaS and AI data processing pipelines.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="nav-logo">
+          <img src="logo.png" alt="CAS Logo" class="logo-image">
+          <div class="logo-text" style="color:rgba(255,255,255,.7)">Core Adaptive Systems<span style="color:rgba(255,255,255,.35)">Technology Consultancy</span></div>
+        </div>
+        <p>High-performance technology consultancy specializing in AI systems, custom software, business automation, and infrastructure security.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Capabilities</h5>
+        <ul>
+          <li><a href="#services">SaaS Development</a></li>
+          <li><a href="#services">AI Agent Architecture</a></li>
+          <li><a href="#services">Business Automation</a></li>
+          <li><a href="#services">Network Security</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Company</h5>
+        <ul>
+          <li><a href="#process">Discovery Process</a></li>
+          <li><a href="#quote">Contact</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#">Insights</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Stay Informed</h5>
+        <div style="display:flex;gap:8px;margin-top:4px">
+          <input class="form-input" type="email" placeholder="Email address" style="background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.1);color:rgba(255,255,255,.8);font-size:.82rem;padding:10px 14px"/>
+          <button class="btn btn-primary" style="padding:10px 14px;flex-shrink:0;font-size:.82rem" onclick="this.textContent='✓'">→</button>
+        </div>
+        <p style="color:rgba(255,255,255,.25);font-size:.75rem;margin-top:10px">Technical insights. No spam.</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2024 Core Adaptive Systems. All rights reserved.</div>
+      <div class="footer-socials">
+        <a href="#" class="social-btn">
+          <svg width="13" height="13" fill="currentColor" viewBox="0 0 24 24"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+        </a>
+        <a href="#" class="social-btn">
+          <svg width="13" height="13" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        </a>
+        <a href="#" class="social-btn">
+          <svg width="13" height="13" fill="currentColor" viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ── NAV ──────────────────────────────────────────────────
+window.addEventListener('scroll',()=>{
+  document.getElementById('navbar').classList.toggle('scrolled', scrollY > 40);
+});
+
+// ── MOBILE MENU ──────────────────────────────────────────
+function toggleMenu(){ document.getElementById('mobileMenu').classList.toggle('open') }
+function closeMobile(){ document.getElementById('mobileMenu').classList.remove('open') }
+
+// ── SCROLL REVEAL ────────────────────────────────────────
+const io = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible') })
+},{threshold:.1});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+// ── COUNTER ANIMATION ────────────────────────────────────
+const cio = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(!e.isIntersecting) return;
+    const el = e.target;
+    const target = parseFloat(el.dataset.target);
+    const suffix = el.dataset.suffix||'';
+    let v=0; const dur=1600, step=16, inc=target/(dur/step);
+    const t=setInterval(()=>{
+      v=Math.min(v+inc,target);
+      el.textContent=(target===99.9?v.toFixed(1):Math.round(v))+suffix;
+      if(v>=target) clearInterval(t);
+    },step);
+    cio.unobserve(el);
+  })
+},{threshold:.5});
+document.querySelectorAll('.met-val[data-target]').forEach(c=>cio.observe(c));
+
+// ── ROI BARS ─────────────────────────────────────────────
+const bio = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(!e.isIntersecting) return;
+    e.target.querySelectorAll('.roi-fill[data-width]').forEach(bar=>{
+      setTimeout(()=>{ bar.style.width=bar.dataset.width+'%' },200);
+    });
+    bio.unobserve(e.target);
+  })
+},{threshold:.3});
+document.querySelectorAll('.roi-cards').forEach(el=>bio.observe(el));
+
+// ── FORM SUBMIT ───────────────────────────────────────────
+function submitForm(){
+  const company=document.getElementById('f-company').value.trim();
+  const email=document.getElementById('f-email').value.trim();
+  if(!company||!email){ alert('Please enter your company name and email.'); return; }
+  document.getElementById('theForm').style.display='none';
+  document.getElementById('formSuccess').style.display='block';
+  // Hook: replace with fetch('/api/quote', { method:'POST', body: JSON.stringify({...}) })
+}
+</script>
+</body>
+</html>
